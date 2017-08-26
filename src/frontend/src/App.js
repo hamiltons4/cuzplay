@@ -1,14 +1,33 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom'
+import {
+  ApolloProvider,
+  ApolloClient,
+  createBatchingNetworkInterface
+} from 'react-apollo'
+
 import CreateView from './views/CreateView'
 import PhotoView from './views/PhotoView'
 import PhotoPageView from './views/PhotoPageView'
 import LoginView from './views/LoginView'
 import LogoutView from './views/LogoutView'
 
+const networkInterface = createBatchingNetworkInterface({
+  uri: 'http://localhost:8000/gql',
+  batchInterval: 10,
+  opts: {
+    credentials: 'same-origin',
+  },
+})
+
+const client = new ApolloClient({
+  networkInterface: networkInterface,
+})
+
 class App extends Component {
   render() {
     return (
+      <ApolloProvider client={client}>
       <Router>
         <div>
           <ul>
@@ -26,6 +45,7 @@ class App extends Component {
           </Switch>
         </div>
       </Router>
+      </ApolloProvider>
 
 
     )
