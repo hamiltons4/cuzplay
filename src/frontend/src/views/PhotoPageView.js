@@ -23,6 +23,8 @@ class PhotoPageView extends React.Component {
 			<div>
 			<main>
 				<h2>PhotoPageView</h2>
+				<div class="clearfix"></div>
+				<div class="clearfix"></div>
 			{/*	{data.allMessages.map(item => (
 					<p key={item.id}>
 						<Link to={'/messages/${item.id}/'}>
@@ -35,7 +37,7 @@ class PhotoPageView extends React.Component {
 							<a href="a" title="Post 1">
 							<article>
 								<p key={item.id}>
-									<Link to={'/messages/${item.id}/'}>
+									<Link to={`/messages/${item.id}/`}>
 										{item.message}
 									</Link>
 								</p>

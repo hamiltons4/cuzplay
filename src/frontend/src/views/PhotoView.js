@@ -1,9 +1,40 @@
 // File: ./frontend/src/views/PhotoView.js
 
 import React from 'react'
+import { gql, graphql } from 'react-apollo'
 
-export default class PhotoView extends React.Component {
-	render() {
-		return <div>PhotoView</div>
+const query = gql`
+query PhotoView($id: ID!) {
+	message(id: $id) {
+		id, creationDate, message
 	}
 }
+`
+
+class PhotoView extends React.Component {
+	render() {
+		let { data } = this.props
+		if (data.loading || !data.message) {
+			return <div>Loading ...</div>
+		}
+		return (
+			<div>
+				<h1>Message {data.message.id}</h1>
+				<p>{data.message.creationDate}</p>
+				<p>{data.message.message}</p>
+			</div>
+
+		)
+	}
+}
+
+const queryOptions = {
+	options: props => ({
+		variables: {
+			id: props.match.params.id,
+		},
+	}),
+}
+
+PhotoView = graphql(query, queryOptions)(PhotoView)
+export default PhotoView
