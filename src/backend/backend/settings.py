@@ -60,9 +60,12 @@ GRAPHENE = {
     'SCHEMA': 'backend.schema.schema',
 }
 
+JWT_VERIFY_EXPIRATION = False
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'backend.middleware.JWTMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

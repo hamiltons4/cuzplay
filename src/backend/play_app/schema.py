@@ -6,7 +6,14 @@ import graphene
 from graphene_django.types import DjangoObjectType
 from graphql_relay.node.node import from_global_id
 
+from django.contrib.auth.models import User
+
 from . import models
+
+class UserType(DjangoObjectType):
+	class Meta:
+		model = User
+
 
 class MessageType(DjangoObjectType):
 	class Meta:
@@ -15,6 +22,13 @@ class MessageType(DjangoObjectType):
 
 	
 class Query(graphene.AbstractType):
+	current_user = graphene.Field(UserType)
+
+	def resolve_current_user(self, args, context, info):
+		if not context.user.is_authenticated():
+			return None 
+		return context.user
+
 	message = graphene.Field(MessageType, id=graphene.ID())
 
 	def resolve_message(self, args, context, info):
@@ -53,4 +67,17 @@ class CreateMessageMutation(graphene.Mutation):
 
 class Mutation(graphene.AbstractType):
 	create_message = CreateMessageMutation.Field()
-	
+
+
+
+		
+		
+
+
+
+
+
+
+
+
+
