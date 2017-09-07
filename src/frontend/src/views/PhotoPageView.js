@@ -3,17 +3,57 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { gql, graphql } from 'react-apollo'
+import queryString from 'query-string'
 import '../App.css'
 
 const query = gql`	
-{
-	allMessages {
-		id, message
-	}
+query ListViewSearch($search: String, $endCursor: String) {
+  allMessages(first: 2, message_Icontains: $search, after: $endCursor) {
+    edges {
+      node {
+        id, message
+      }
+    },
+    pageInfo {
+      hasNextPage,
+      hasPreviousPage,
+      startCursor,
+      endCursor
+    }
+  }
 }
 `
 
 class PhotoPageView extends React.Component {
+	handleSearchSubmit(e) {
+		e.preventDefault()
+		let data = new FormData(this.form)
+		let query = `?search=${data.get('search')}`
+		this.props.history.push(`/${query}`)
+	}
+
+	loadMore() {
+		let { data, location } = this.props
+		data.fetchMore({
+			query: query,
+			variables: {
+				search: queryString.parse(location.search).search,
+				endCursor: data.allMessages.pageInfo.endCursor,
+			},
+			updateQuery: (prev, next) => {
+				const newEdges = next.fetchMoreResult.allMessages.edges
+				const pageInfo = next.fetchMoreResult.allMessages.pageInfo
+				return {
+					allMessages: {
+						edges: [...prev.allMessages.edges, ...newEdges],
+						pageInfo,
+
+					},
+				}
+			},
+		})
+
+	}
 	render() {
 		let { data } = this.props
 		if (data.loading || !data.allMessages) {
@@ -21,36 +61,36 @@ class PhotoPageView extends React.Component {
 		}
 		return (
 			<div>
+				<form
+					ref={ref => (this.form = ref)}
+					onSubmit={e => this.handleSearchSubmit(e)}
+				>
+					<input type="text" name="search" />
+					<button type="submit">Search</button>
+				</form>
 				<h2>PhotoPageView</h2>
-				<div class="clearfix"></div>
-				<div class="clearfix"></div>
+				{data.allMessages.pageInfo.hasNextPage &&
+					<button onClick={() => this.loadMore()}>Load more ..</button>}
+				<div className="clearfix"></div>
+				<div className="clearfix"></div>
 
-			<main>
-				{/*<h2>PhotoPageView</h2>
-				<div class="clearfix"></div>
-				<div class="clearfix"></div>*/}
-			{/*	{data.allMessages.map(item => (
-					<p key={item.id}>
-						<Link to={'/messages/${item.id}/'}>
-							{item.message}
-						</Link>
-					</p>
-				))} */}
-					
-						{data.allMessages.map(item => (
-							<a href="a" title="Post 1">
+			<main>	
+						{data.allMessages.edges.map(item => (
+							<span href="a" title="Post 1"  key={item.node.id}>
 							<article>
-								<p key={item.id}>
-									<Link to={`/messages/${item.id}/`}>
-										{item.message}
+								{/*<p key={item.id}>*/}
+								<p>
+									<Link to={`/messages/${item.node.id}/`}>
+										{item.node.message}
 									</Link>
 								</p>
+								
 							<figure>
-								<img src="http://via.placeholder.com/480x360" alt="image-1"></img>
+								<img src="http://via.placeholder.com/480x360" alt=""></img>
 								<figcaption>Post 1</figcaption>
 							</figure>
 							</article>
-							</a>				
+							</span>				
 						))}
 						
 					
@@ -61,5 +101,14 @@ class PhotoPageView extends React.Component {
 	}
 }
 
-PhotoPageView = graphql(query)(PhotoPageView)
+const queryOptions = {
+	options: props => ({
+		variables: {
+			search: queryString.parse(props.location.search).search,
+			endCursor: null,
+		},
+	}),
+}
+
+PhotoPageView = graphql(query, queryOptions)(PhotoPageView)
 export default PhotoPageView

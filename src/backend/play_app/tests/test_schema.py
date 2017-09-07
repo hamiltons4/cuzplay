@@ -1,15 +1,25 @@
-#File: ./backend/play_app/tests/test_schema.py
+# backend/play_app/tests/test_schema.py
 
 import pytest
 from mixer.backend.django import mixer
+
 from graphql_relay.node.node import to_global_id
-from django.contrib.auth.models import AnonymousUser
-from django.test import RequestFactory
 
 from .. import schema
 
+from django.contrib.auth.models import AnonymousUser
+from django.test import RequestFactory
+
 
 pytestmark = pytest.mark.django_db
+
+def test_resolve_message():
+	msg = mixer.blend('play_app.Message')
+	q = schema.Query()
+	id = to_global_id('MessageType', msg.pk)
+	res = q.resolve_message({'id': id}, None, None)
+	assert res == msg, 'Should return the requested message'
+
 
 def test_message_type():
 	instance = schema.MessageType()
@@ -22,20 +32,12 @@ def test_resolve_all_messages():
 	res = q.resolve_all_messages(None, None, None)
 	assert res.count() == 2, 'Should return all messages'
 
-	
-def test_resolve_message():
-	msg = mixer.blend('play_app.Message')
-	q = schema.Query()
-	id = to_global_id('MessageType', msg.pk)
-	res = q.resolve_message({'id': id}, None, None)
-	assert res == msg, 'Should return the requested message'
-
 
 def test_create_message_mutation():
 	user = mixer.blend('auth.User')
 	mut = schema.CreateMessageMutation()
 
-	data = {'message': 'Test'}
+	data = { 'message': 'Test'}
 	req = RequestFactory().get('/')
 	req.user = AnonymousUser()
 	res = mut.mutate(None, data, req, None)
@@ -50,29 +52,20 @@ def test_create_message_mutation():
 	req.user = user
 	res = mut.mutate(None, {'message': 'Test'}, req, None)
 	assert res.status == 200, 'Should return 400 if there are form errors'
-	assert res.message.pk == 1, 'Should create a new message'
+	assert res.message.pk == 1, 'Shhould create new message'
 
-# The following two tests will go in backend/user_profile/tests/test_schema.py in production
-def test_user_type():
-	instance = schema.UserType()
-	assert instance
+	def test_user_type():
+		instance = schema.UserType()
+		assert instance
 
+	def test_resolve_current_user():
+		q = schema.Query()
+		req = RequestFactory().get('/')
+		req.user = AnonymousUser()
+		res = q.resolve_current_user(None, req, None)
+		assert res is None, 'Should return None if user is not authenticated'
 
-def test_resolve_current_user():
-	q = schema.Query()
-	req = RequestFactory().get('/')
-	req.user = AnonymousUser()
-	res = q.resolve_current_user(None, req, None)
-	assert res is None, 'Should return None if user is not authenticated'
-
-	user = mixer.blend('auth.User')
-	req.user = user
-	res = q.resolve_current_user(None, req, None)
-	assert res == user, 'Should return the current user if is authenticated'
-
-
-
-
-
-
-
+		user = mixer.blend('auth.User')
+		req.user = user
+		res = q.resolve_current_user(None, req, None)
+		assert res == user, 'Should return the current user if is authenticated'

@@ -23,7 +23,7 @@ class PhotoView extends React.Component {
 				<p>{data.message.creationDate}</p>
 				<p>{data.message.message}</p>
 				<figure>
-					<img src="http://via.placeholder.com/480x360" alt="image-1"></img>
+					<img src="http://via.placeholder.com/480x360" alt=""></img>
 					<figcaption>Post 1</figcaption>
 				</figure>
 			</div>

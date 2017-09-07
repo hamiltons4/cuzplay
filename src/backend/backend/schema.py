@@ -1,8 +1,16 @@
-# File: ./backend/backend/schema.py
+#backend/backend/schema.py
 
 import graphene
 
+
 import play_app.schema
+
+class Mutations(
+	play_app.schema.Mutation,
+	graphene.ObjectType,
+):
+	pass
+
 
 class Queries(
 	play_app.schema.Query,
@@ -11,15 +19,6 @@ class Queries(
 	dummy = graphene.String()
 
 
-class Mutations(
-	play_app.schema.Mutation,
-	graphene.ObjectType
-):
-	pass
-
-
 
 schema = graphene.Schema(query=Queries, mutation=Mutations)
-
-
 

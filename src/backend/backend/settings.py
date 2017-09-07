@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'z(59246w4yt=bn4vp_dzni3ox8z)#bm&8i4nn=k)=ecmrh5fg8'
+SECRET_KEY = 'yxt*qppbub8l-#r-l@w#=#n+l0=+4o7@s(_4(s2jpyrul(v92='
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -45,9 +45,6 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
@@ -62,7 +59,7 @@ GRAPHENE = {
 
 JWT_VERIFY_EXPIRATION = False
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'backend.middleware.JWTMiddleware',
